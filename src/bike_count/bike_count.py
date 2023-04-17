@@ -10,6 +10,7 @@ sys.path.insert(0, f'{path}/../ultralytics/')
 from ultralytics import YOLO
 
 def EveryN(i, iter = 0):
+    global racks
     global pictures
     global connection
     if not alive:
@@ -45,9 +46,11 @@ def EveryN(i, iter = 0):
                     f.write(im_b64)
                 
                 
-                rack_id = 1 # Change 1 with document['rack_id']
+                rack_id = document['rack_id']
                 
                 cursor_rack = racks.find({})
+                
+                slots = 22
                 
                 # Search the rack by id and look for the slots of the rack
                 for rack in cursor_rack:
