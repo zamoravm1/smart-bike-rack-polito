@@ -1,0 +1,153 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          7.656687499999999,
+          45.064663499999995
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "address": "Aula 7N, 10138 Torino TO, Italia",
+        "name": "5"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.659211099999999,
+          45.0648067
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "name": "4"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.6601288,
+          45.0616597
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "address": "Dexpilab of vibration, Corso Duca degli Abruzzi, 24, 10129 Torino TO, Italia",
+        "name": "8"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.6593633,
+          45.0643033
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "address": "LABINF - Laboratorio Didattico di Informatica Avanzata, Corso Castelfidardo, 10138 Torino TO, Italia",
+        "name": "6"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.660266999999999,
+          45.063246
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "name": "9"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.6596988999999995,
+          45.0652794
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "name": "2"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.6576761,
+          45.065124
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "address": "Immotionar, Corso Castelfidardo, 30/A, 10129 Torino TO, Italia",
+        "name": "3"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.660555,
+          45.063961
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "name": "10"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.658548,
+          45.063007
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "address": "LED 4 - Politecnico di Torino, Corso Castelfidardo, 34/A, 10138 Torino TO, Italia",
+        "name": "7"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.66175,
+          45.064640999999995
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "name": "11"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          7.6588392999999995,
+          45.0661729
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "name": "1"
+      },
+      "type": "Feature"
+    }
+  ],
+  "type": "FeatureCollection"
+}
