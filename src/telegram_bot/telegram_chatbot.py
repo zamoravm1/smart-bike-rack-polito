@@ -1,3 +1,6 @@
+# WORKING 17.04.23
+
+# By: @zamoravm1 10.04.2023
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 import json
@@ -7,6 +10,7 @@ import pymongo
 from pymongo import MongoClient
 import datetime
 import pytz
+import re
 
 class SmartRackChatbot:
     def __init__(self, token):
@@ -54,11 +58,21 @@ class SmartRackChatbot:
 
         # Return the lists as a tuple
         return free_slots
+    def read_Localization(self,rack):
+        # Select the database and collection
+        loc = self.db["Racks"]   
+        # Find the last document in the collection with the specified rack_id
+        document = loc.find({'rack_id': rack})
+        latitude = document['localization']['latitude']
+        longitude = document['localization']['longitude']
+        return longitude, latitude
     
     def get_message_text(self):
         timezone = pytz.timezone('Europe/Rome')
         now = datetime.datetime.now(timezone)
         message_text = "NOW - Free slots (" + now.strftime('%H:%M') + "): " + str(self.read_BikeCount()) + "\n"
+        
+        '''
         forecasting =  self.read_Forecast()
         one_hour_later = now + datetime.timedelta(hours=1)
         two_hour_later = now + datetime.timedelta(hours=2)
@@ -70,6 +84,7 @@ class SmartRackChatbot:
             message_text += "Free slots (" + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
             message_text += "Free slots (" + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
             message_text += "Free slots (" + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
+        '''
         return message_text
 
 
@@ -125,20 +140,31 @@ class SmartRackChatbot:
                 # Pause for a few seconds to allow the photo to be sent before sending the message and the number buttons
                 time.sleep(1)
 
-                message_text = "*State of racks in the zone:*\n\n"  # Add two newlines to create a gap between the title and the list
+                message_text = "*State of racks in the zone:*\n"  # Add two newlines to create a gap between the title and the list
                 message_text += self.get_message_text()
                 
                 # Send the message using the reply_to method of the bot object
                 self.bot.reply_to(message, message_text, reply_markup= self.rack_keyboard)
-                
-                if message.text is not None:
-                    self.bot.reply_to(message, "code under construction from this point.") 
-                    
-                else:
-                    self.bot.reply_to(message, "Invalid rack selection or not available.")   
+                  
             else:
                 self.bot.reply_to(message, "Invalid zone selection or not available.")
                 print(message.text)
+        # Send localization
+        @self.bot.message_handler(func=lambda message: message.text in ["R2"])
+        def button_handler(message):
+            # Find the location corresponding to the button text
+            location_name = message.text
+
+            if location == 'R2':
+                # rack = re.findall(r'\d',message.text)
+                # longitude, latitude = self.read_Localization(rack[0])
+                longitude = 37.7749
+                latitude = -122.4194
+                # Otherwise, send the location information
+                self.bot.send_location(message.chat.id, longitude, latitude)
+            else:
+                # If the location wasn't found, send an error message
+                self.bot.send_message(message.chat.id, "Invalid selection or not available.")
             
         '''        
         # Handle rack selection
