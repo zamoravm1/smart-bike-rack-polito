@@ -162,7 +162,7 @@ if __name__ == "__main__":
     except:
         connection = False
             
-    timer = 300
+    timer = 1800
     alive = True
     
     try:
