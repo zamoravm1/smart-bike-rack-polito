@@ -40,7 +40,7 @@ def EveryN(i, iter=0):
             connection = True
         except:
             connection = False
-            
+    forecasting_collection.delete_many({})               
     if connection:
         documents = list(counts_collection.find(query))
         df = pd.DataFrame(documents)
@@ -62,6 +62,7 @@ def EveryN(i, iter=0):
         df['Day']=day
         df['Weekday']=weekday
         df['Hour']=hour
+        df['Hour2']=hour
 
         for i in range(len(df)):
             df.loc[i, ['Weekday']]=[time.strptime(df.iloc[i][8], "%A").tm_wday]
@@ -114,6 +115,10 @@ def EveryN(i, iter=0):
         prediction_df.iloc[1][7]=prediction_df.iloc[0][7]+0.3
         prediction_df.iloc[2][7]=prediction_df.iloc[0][7]+1
         prediction_df.iloc[3][7]=prediction_df.iloc[0][7]+1.3
+        initial_hour = datetime.datetime.strptime(prediction_df.iloc[0][8], '%H:%M')
+        prediction_df.iloc[1][8]=(initial_hour + datetime.timedelta(minutes=30)).strftime('%H:%M')
+        prediction_df.iloc[2][8]=(initial_hour + datetime.timedelta(minutes=60)).strftime('%H:%M')
+        prediction_df.iloc[3][8]=(initial_hour + datetime.timedelta(minutes=90)).strftime('%H:%M')
 
         X = df[['Year','Month','Day','Weekday','Hour']]
         y = df[['busy_slots']]
@@ -124,37 +129,25 @@ def EveryN(i, iter=0):
 
         prediction_df = prediction_df.assign(busy_slots=prediction)
 
+        
         for i in range(len(prediction_df)):
-            prediction_df.loc[i, ['Year']]=int(prediction_df.iloc[i][3])
-            prediction_df.loc[i, ['Month']]=int(prediction_df.iloc[i][4])
-            prediction_df.loc[i, ['Day']]=int(prediction_df.iloc[i][5])
-
-        for i in range(len(prediction_df)):
-            prediction_df.loc[i, ['Year']]=str(prediction_df.iloc[i][3])
-            prediction_df.loc[i, ['Month']]=str(prediction_df.iloc[i][4])
-            prediction_df.loc[i, ['Day']]=str(prediction_df.iloc[i][5])
-
-        prediction_df[['hour', 'minute']] = prediction_df['Hour'].apply(lambda x: pd.Series(str(x).split('.')))
-
-        for i in range(len(prediction_df)):
-            prediction_df.loc[i, ['timestamp']]=str(prediction_df.iloc[i][3]+'-'+prediction_df.iloc[i][4]+'-'+prediction_df.iloc[i][5]+'-'+prediction_df.iloc[i][9]+'-'+prediction_df.iloc[i][10])
-
+            year = int(prediction_df.iloc[i][3])
+            month = int(prediction_df.iloc[i][4])
+            day = int(prediction_df.iloc[i][5])
+            timestamp_string = prediction_df.iloc[i]['Hour2']
+            timestamp = datetime.datetime.strptime(timestamp_string, '%H:%M').time()
+            date = datetime.datetime(year, month, day)
+            datetime_object = datetime.datetime.combine(date, timestamp)
+            result_string = datetime_object.strftime('%Y-%m-%d-%H-%M')
+            prediction_df.loc[i,['timestamp']] = result_string
+        
+        
         prediction_df['free_slots'] = 22-prediction_df['busy_slots']
-        prediction_df = prediction_df.drop(['_id','Year','Month','Day','Weekday','Hour','hour','minute'],axis=1)
+        prediction_df = prediction_df.drop(['_id','Year','Month','Day','Weekday','Hour','Hour2'],axis=1)
         data = prediction_df.to_dict(orient='records')
-        ##print(data)
-        #TO DO 
         forecasting_collection.insert_many(data)
-        ############### REPLACE OLD DOCUMENTS WITH SAME TIMESTAMP
-        for i in range(len(data)):
-            filter_query = {'timestamp': data[i]['timestamp']}
-            new_doc = {
-                       'rack_id': data[i]['rack_id'],
-                       'timestamp': data[i]['timestamp'],
-                       'busy_slots': data[i]['busy_slots'],
-                       'free_slots': data[i]['free_slots']}
+        #print(data)
 
-            forecasting_collection.replace_one(filter_query, new_doc)
 
 
 
