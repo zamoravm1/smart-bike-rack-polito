@@ -1,4 +1,4 @@
-# WORKING 17.04.23
+# Last update 20.04.23 happy path working
 
 # By: @zamoravm1 10.04.2023
 import telebot
@@ -25,8 +25,12 @@ class SmartRackChatbot:
         self.rack_id = 1
         
         self.rack_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-        self.rack_keyboard.row(KeyboardButton('R1'), KeyboardButton('R2'), KeyboardButton('R2'), KeyboardButton('R3'))
-        self.rack_keyboard.row(KeyboardButton("Back to start"), KeyboardButton("Help"))
+        self.rack_keyboard.row(KeyboardButton('R1'), KeyboardButton('R2'), KeyboardButton('R3'))
+        self.rack_keyboard.row(KeyboardButton("Select another zone"), KeyboardButton("Help"))
+        
+        self.rack2_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+        self.rack2_keyboard.row(KeyboardButton('R1'), KeyboardButton('R2'), KeyboardButton('R3'))
+        self.rack2_keyboard.row(KeyboardButton("Update racks state"),KeyboardButton('Select another zone'),KeyboardButton("Help"))
 
 
     def read_BikeCount(self):
@@ -72,7 +76,6 @@ class SmartRackChatbot:
         now = datetime.datetime.now(timezone)
         message_text = "NOW - Free slots (" + now.strftime('%H:%M') + "): " + str(self.read_BikeCount()) + "\n"
         
-        '''
         forecasting =  self.read_Forecast()
         one_hour_later = now + datetime.timedelta(hours=1)
         two_hour_later = now + datetime.timedelta(hours=2)
@@ -84,7 +87,7 @@ class SmartRackChatbot:
             message_text += "Free slots (" + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
             message_text += "Free slots (" + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
             message_text += "Free slots (" + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
-        '''
+
         return message_text
 
 
@@ -155,21 +158,16 @@ class SmartRackChatbot:
             # Find the location corresponding to the button text
             location_name = message.text
 
-            if location == 'R2':
-                # rack = re.findall(r'\d',message.text)
-                # longitude, latitude = self.read_Localization(rack[0])
-                longitude = 37.7749
-                latitude = -122.4194
+            if location_name == 'R2':
+                rack = re.findall(r'\d',message.text)
+                #longitude, latitude = self.read_Localization(rack[0])
+                latitude = 7.6596988999999995
+                longitude  = 45.0652794
                 # Otherwise, send the location information
-                self.bot.send_location(message.chat.id, longitude, latitude)
+                self.bot.send_location(message.chat.id, longitude, latitude, reply_markup=self.rack2_keyboard)
             else:
                 # If the location wasn't found, send an error message
                 self.bot.send_message(message.chat.id, "Invalid selection or not available.")
-            
-        '''        
-        # Handle rack selection
-        @self.bot.message_handler(func=lambda message: message.text in ["R1"])
-        '''   
         # Start the bot
         self.bot.infinity_polling()
         
