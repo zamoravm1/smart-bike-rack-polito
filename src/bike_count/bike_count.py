@@ -1,4 +1,5 @@
 import sys
+import traceback
 import os
 from threading import Timer
 import signal
@@ -72,6 +73,7 @@ def EveryN(i, iter = 0):
                 try:
                     bike_count.insert_many(count_example)
                 except:
+                    traceback.print_exc()
                     connection = False
                     with open(path + 'error.txt', 'a') as f:
                         f.write(str(filename) + " was not added to mongodb\n")
