@@ -11,6 +11,7 @@ sys.path.insert(0, f'{path}/../ultralytics/')
 from ultralytics import YOLO
 
 def EveryN(i, iter = 0):
+    global bike_count
     global racks
     global pictures
     global connection
