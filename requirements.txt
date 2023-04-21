@@ -16,6 +16,7 @@ telebot>=0.0.5
 ultralytics>=8.0.81
 yolov8>=0.0.1
 pymongo>=4.3.3
+scikit-learn>=1.2.2
 
 # Logging -------------------------------------
 # tensorboard>=2.4.1

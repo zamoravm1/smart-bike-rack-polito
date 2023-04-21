@@ -70,7 +70,7 @@ def EveryN(i, iter = 0):
                 
                 # Insert the document in the collection bike_count
                 try:
-                    bike_count.insert_one(count_example)
+                    bike_count.insert_many(count_example)
                 except:
                     connection = False
                     with open(path + 'error.txt', 'a') as f:
