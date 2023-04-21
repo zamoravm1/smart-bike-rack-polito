@@ -161,8 +161,8 @@ class SmartRackChatbot:
             if location_name == 'R2':
                 rack = re.findall(r'\d',message.text)
                 #longitude, latitude = self.read_Localization(rack[0])
-                latitude = 7.6596988999999995
-                longitude  = 45.0652794
+                latitude = 7.6567050250754525
+                longitude  = 45.06480112528298
                 # Otherwise, send the location information
                 self.bot.send_location(message.chat.id, longitude, latitude, reply_markup=self.rack2_keyboard)
             else:
