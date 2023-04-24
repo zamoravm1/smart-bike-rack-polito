@@ -1,4 +1,4 @@
-# Last update 24.04.23 21:22 happy english path with emojis
+# Last update 24.04.23 21:22 happy english path full with emojis
 
 # By: @zamoravm1 10.04.2023
 #! pip install telebot
@@ -36,7 +36,7 @@ class SmartRackChatbot:
         
         self.rack2_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
         self.rack2_keyboard.row(KeyboardButton('Rack #1'), KeyboardButton('Rack #2'), KeyboardButton('Rack #3'))
-        self.rack2_keyboard.row(KeyboardButton('Select another zone'),KeyboardButton("Help"))
+        self.rack2_keyboard.row(KeyboardButton('Update racks state'),KeyboardButton('Select another zone'),KeyboardButton("Help"))
         
         self.racks=[1,1,1]
         self.rack=1
@@ -184,11 +184,11 @@ class SmartRackChatbot:
             self.bot.reply_to(message,'\U0001F7E2 *Select or write the zone (green marks in the picture above):*\n', reply_markup=zone_buttons,parse_mode='Markdown')
             self.bot.reply_to(message,'_For now, available only "Aula M-N"_', reply_markup=zone_buttons,parse_mode='Markdown')
         # Handle zone selection
-        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text== "Update this info")
+        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text== "Update racks state")
         def process_zone_selection(message):
             # Get the selected zone
             #selected_zone = next((zone for zone in self.locations['features'] if zone['properties']['name'] == message.text), None)
-            if message.text == "Aula M-N" or message.text== "Update this info":
+            if message.text == "Aula M-N" or message.text== "Update racks state":
                 print(" process_zone_selection running: " + message.text)
                 # Send the picture of the racks in the zone
                 with open('racks.png', 'rb') as photo:
@@ -199,12 +199,13 @@ class SmartRackChatbot:
                 racks = [1,1,1]
                 self.racks = racks
                 message_text += self.get_message_text()
-                button = InlineKeyboardButton("Update this info", callback_data="button_callback")
+                #button = InlineKeyboardButton("Update this info", callback_data="button_callback")
                 # Create the markup with the button
-                markup = InlineKeyboardMarkup().add(button)
+                #markup = InlineKeyboardMarkup().add(button)
                 
                 # Send the message with the markup
-                self.bot.send_message(message.chat.id, message_text, reply_markup=markup,parse_mode='Markdown')
+                #self.bot.send_message(message.chat.id, message_text, reply_markup=markup,parse_mode='Markdown')
+                self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
                 self.bot.send_message(message.chat.id, "_For now, only the 'Rack #2' available_", reply_markup=self.rack2_keyboard,parse_mode='Markdown')
                 
 
@@ -239,11 +240,11 @@ class SmartRackChatbot:
         @self.bot.message_handler(func=lambda message: message.text in ["Help"])
         def help(message):
             if message.text == "Help":
-                message_text = "Hey! *Smart rack Polito* is a pilot service that allows you to find a free place for your bike on the Polito campus in real time or within 2 hours of your inquiry.\n"
-                message_text += "Select the area you want to go to, find out about the status of the racks in the area, and select the one that suits you best to get the location on the map.\n"
-                message_text += "*At the moment, ONLY the zone 'M and N' with the bike rack 'R2' is AVAILABLE.*\n"
-                message_text += "If you have any questions or suggestions, please email us at smarrack2022@gmail.com \n"
-                message_text += "/start - Change language or comeback to chat"
+                message_text = "\U0001F469 *What Smart rack Polito chatbot is?* It is a pilot service that allows you to find and get the localization of a free place for your bike on the Polito campus in real-time or for an estimation of the next 2h. \n"
+                message_text += "\U0001F9D1 *How does it work?* Select the area you want to go to, find out about the status of the racks in the area, and select the one that suits you best to get the location on the map.\n"
+                message_text += "\U00002139 *At the moment, ONLY the zone 'M and N' with the bike rack 'R2' is AVAILABLE.*\n"
+                message_text += "\U0001F4EC If you have any questions or suggestions, please email us at smartrack2022@gmail.com \n"
+                message_text += "\U000021AA Write /start to *change language* or *comeback to chat*"
                 
                 # Send the message using the reply_to method of the bot object
                 reply_markup = ReplyKeyboardRemove()
