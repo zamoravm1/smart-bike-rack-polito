@@ -7,25 +7,51 @@ import pymongo
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 from pymongo import MongoClient
 import signal
 
-def accuracy_with_tolerance(arr1, arr2):
-    accurate_values = np.logical_or(np.isclose(arr1, arr2, rtol=0, atol=2),
-                                    np.isclose(arr1, arr2, rtol=0, atol=-2))
-    accuracy = accurate_values.sum() / len(arr1)
-    return accuracy
+def x1(df, groupby_cols, target_col_name, new_col_name):
+    grouped_df = df.groupby(groupby_cols)[target_col_name].mean().reset_index()
+    grouped_df[new_col_name] = grouped_df[target_col_name].round().astype(int)
+    grouped_df.drop(columns=target_col_name, inplace=True)
+    result_df = pd.merge(df, grouped_df, on=groupby_cols, how='left')
+    return result_df
 
-accu_y_test = 0
-accu_y_test_hat = 0
+def x2(df):
+    def float_to_time(x):
+        hour = int(x)
+        minute = int((x - hour) * 100)
+        return '{:02d}:{:02d}'.format(hour, minute)
+    def rolling_mean(x):
+        return x.rolling(window=18, min_periods=1).mean().iloc[-1]
+    df['Time'] = df['Hour'].apply(float_to_time)
+    df['x2'] = df.groupby(['Weekday', 'Time'])['busy_slots'].transform(rolling_mean).astype(int)
+    df = df.drop('Time', axis=1)
+    return df
+
+def x3(df):
+    df['hour_int'] = df['Hour'].apply(lambda x: int(x*100))
+    df['hourly_avg_bikes'] = df.groupby(['Weekday', 'hour_int'])['busy_slots'].rolling(window=72, min_periods=1).mean().reset_index(0, drop=True).reset_index(drop=True)
+    df['x3'] = (df['busy_slots'] - df['hourly_avg_bikes'])
+    df['x3'] = df['x3'].astype(int)
+    df = df.drop(['hour_int','hourly_avg_bikes'],axis=1)
+    return df
+
 
 def EveryN(i, iter=0):
     global connection 
     global counts_collection
     global query
-    global accu_y_test
-    global accu_y_test_hat
     global forecasting_collection
+    global closest_prediction
+    global predictions
+    global correct_0
+    global correct_1
+    global correct_2
+    global bad
+    global aux
+    
     if not alive:
         return
     Timer(i, EveryN, (i, iter+1)).start()
@@ -40,8 +66,15 @@ def EveryN(i, iter=0):
             connection = True
         except:
             connection = False
-    forecasting_collection.delete_many({})               
+            
+                 
     if connection:
+        
+        
+            
+        
+        forecasting_collection.delete_many({})  
+        
         documents = list(counts_collection.find(query))
         df = pd.DataFrame(documents)
 
@@ -64,92 +97,63 @@ def EveryN(i, iter=0):
         df['Hour']=hour
         df['Hour2']=hour
 
-        for i in range(len(df)):
-            df.loc[i, ['Weekday']]=[time.strptime(df.iloc[i][8], "%A").tm_wday]
-            df.loc[i, ['Year']]=float(df.iloc[i][5])
-            df.loc[i, ['Month']]=float(df.iloc[i][6])
-            df.loc[i, ['Day']]=float(df.iloc[i][7])
-            hours,minutes = df.iloc[i][9].split(':')
-            df.loc[i, ['Hour']]=float(hours+'.'+minutes)
-            df.loc[i, ['busy_slots']]=float(df.iloc[i][4])
+        df['Year'] = df['Year'].apply(lambda x: int(x))
+        df['Month'] = df['Month'].apply(lambda x: int(x))
+        df['Day'] = df['Day'].apply(lambda x: int(x))
+        df['Weekday'] = df['Weekday'].apply(lambda x: time.strptime(x, '%A').tm_wday)
+        to_float_hour = lambda x: float(x.replace(':', '.'))
+        df['Hour'] = df['Hour'].apply(to_float_hour)
+        
+        last_row = df.iloc[-1]
+        
+        predictions = predictions + 1
+        if aux==True:
+            if closest_prediction == last_row['busy_slots']:
+                correct_0 = correct_0 + 1
+            elif abs(closest_prediction-last_row['busy_slots']) == 1:
+                correct_1 = correct_1 + 1
+            elif abs(closest_prediction-last_row['busy_slots']) == 2:
+                correct_1 = correct_2 + 1
+            else:
+                bad = bad + 1
+        
+                          
+        df = df.append([last_row]*3, ignore_index=True)
+        
+        
+        df.loc[len(df)-3, 'Hour'] = df.loc[len(df)-3, 'Hour'] + 0.30
+        df.loc[len(df)-3, 'Hour2'] = (datetime.datetime.strptime(df.loc[len(df)-3, 'Hour2'], '%H:%M') + datetime.timedelta(minutes=30)).strftime('%H:%M')
+        df.loc[len(df)-2, 'Hour'] = df.loc[len(df)-2, 'Hour'] + 1.00
+        df.loc[len(df)-2, 'Hour2'] = (datetime.datetime.strptime(df.loc[len(df)-2, 'Hour2'], '%H:%M') + datetime.timedelta(hours=1)).strftime('%H:%M')
+        df.loc[len(df)-1, 'Hour'] = df.loc[len(df)-1, 'Hour'] + 1.30
+        df.loc[len(df)-1, 'Hour2'] = (datetime.datetime.strptime(df.loc[len(df)-1, 'Hour2'], '%H:%M') + datetime.timedelta(hours=1, minutes=30)).strftime('%H:%M')
 
-        for i in range(len(df)):
-            df.loc[i, ['Weekday']]=float(df.iloc[i][8])
-
+        df = x1(df,['Weekday','Hour'], 'busy_slots', 'x1')
+        df = x2(df)
+        df = x3(df)
+        prediction_df = df.tail(4)
+        df = df.drop(df.tail(3).index)
+        
         regressor = RandomForestRegressor(n_estimators = 100, random_state = 0)
-        MSE = []
-        accuracy = []
-        for i in range(35):
-            window = df.iloc[:100+i*30]
-            training = window.iloc[:len(window)-30]
-            testing = window.iloc[len(window)-30:]
-            x_train = training[['Year','Month','Day','Weekday','Hour']]
-            x_test = testing[['Year','Month','Day','Weekday','Hour']]
-            y_train = training[['busy_slots']]
-            y_test = testing[['busy_slots']]
-            X = x_train.copy()
-            y = y_train.copy()
-            regression = regressor.fit(X, y)
-            y_test_hat = (regression.predict(x_test))
-            rounded_y_test_hat = np.round(y_test_hat).astype(int)
-            df_rounded_y_hat = pd.DataFrame(rounded_y_test_hat)
-
-            y_test_array = y_test['busy_slots'].values
-
-            #print(type(rounded_y_test_hat))
-            #print(type(y_test_array))
-            #print(y_test_array)
-            accu_y_test = accu_y_test + sum(y_test_array)
-            accu_y_test_hat = accu_y_test_hat + sum(rounded_y_test_hat)
-            accuracy_result = accuracy_with_tolerance(rounded_y_test_hat, y_test_array)
-            accuracy.append(accuracy_result)  
-            MSE.append(mean_squared_error(y_test, y_test_hat))
-
-        last_count = df.iloc[len(df)-1]
-        prediction_df = last_count.to_frame().transpose()
-        row_to_duplicate = prediction_df.iloc[0]
-        duplicated_rows = pd.concat([row_to_duplicate] * 3, axis=1).transpose()
-        prediction_df = pd.concat([prediction_df, duplicated_rows], ignore_index=True)
-        prediction_df = prediction_df.drop(['busy_slots'],axis=1)
-        prediction_df = prediction_df.drop(['free_slots'],axis=1)
-        prediction_df.iloc[1][7]=prediction_df.iloc[0][7]+0.3
-        prediction_df.iloc[2][7]=prediction_df.iloc[0][7]+1
-        prediction_df.iloc[3][7]=prediction_df.iloc[0][7]+1.3
-        initial_hour = datetime.datetime.strptime(prediction_df.iloc[0][8], '%H:%M')
-        prediction_df.iloc[1][8]=(initial_hour + datetime.timedelta(minutes=30)).strftime('%H:%M')
-        prediction_df.iloc[2][8]=(initial_hour + datetime.timedelta(minutes=60)).strftime('%H:%M')
-        prediction_df.iloc[3][8]=(initial_hour + datetime.timedelta(minutes=90)).strftime('%H:%M')
-
-        X = df[['Year','Month','Day','Weekday','Hour']]
+        
+        X = df[['Month','Day','Weekday','Hour','x1','x2','x3']]
         y = df[['busy_slots']]
-        regression = regressor.fit(X, y)
-        prediction = regressor.predict(prediction_df[['Year','Month','Day','Weekday','Hour']])
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=44)
+        regressor.fit(X_train,y_train)
+        score = regressor.score(X_test, y_test)
+        prediction = regressor.predict(prediction_df[['Month','Day','Weekday','Hour','x1','x2','x3']])
         prediction = np.round(prediction)
         prediction = prediction.astype('int')
-
         prediction_df = prediction_df.assign(busy_slots=prediction)
-
-        
-        for i in range(len(prediction_df)):
-            year = int(prediction_df.iloc[i][3])
-            month = int(prediction_df.iloc[i][4])
-            day = int(prediction_df.iloc[i][5])
-            timestamp_string = prediction_df.iloc[i]['Hour2']
-            timestamp = datetime.datetime.strptime(timestamp_string, '%H:%M').time()
-            date = datetime.datetime(year, month, day)
-            datetime_object = datetime.datetime.combine(date, timestamp)
-            result_string = datetime_object.strftime('%Y-%m-%d-%H-%M')
-            prediction_df.loc[i,['timestamp']] = result_string
-        
+        prediction_df['timestamp'] = prediction_df.apply(lambda x: f"{x['Year']}-{x['Month']}-{x['Day']}-{x['Hour2'][:2]}-{x['Hour2'][3:]}", axis=1)
         
         prediction_df['free_slots'] = 22-prediction_df['busy_slots']
-        prediction_df = prediction_df.drop(['_id','Year','Month','Day','Weekday','Hour','Hour2'],axis=1)
+        prediction_df = prediction_df.drop(['_id','Year','Month','Day','Weekday','Hour','Hour2','x1','x2','x3'],axis=1)
         data = prediction_df.to_dict(orient='records')
         forecasting_collection.insert_many(data)
-        #print(data)
-
-
-
+        closest_prediction = data[1]['busy_slots']
+        aux = True
+         
 
 if __name__ == "__main__":
     try: 
@@ -162,11 +166,23 @@ if __name__ == "__main__":
     except:
         connection = False
             
-    timer = 1800
+    timer = 180
     alive = True
-    
+    aux = False
+    predictions = 0
+    correct_0 = 0
+    correct_1 = 0
+    correct_2 = 0 
+    bad = 0
     try:
         EveryN(timer)
+        print('Out of: ',predictions,' predictions: ',correct_0, 'predicted perfectly')
+        print('Out of: ',predictions,' predictions: ',correct_1, 'predicted with a +- 1 tolerance')
+        print('Out of: ',predictions,' predictions: ',correct_2, 'predicted with a +- 2 tolerance')
+        print('Out of: ',predictions,' predictions: ',bad, 'predicted wrongly')
+        #print(aux)
         signal.pause()
+        
     except KeyboardInterrupt:
         alive = False
+    
