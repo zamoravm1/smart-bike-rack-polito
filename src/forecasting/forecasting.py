@@ -105,20 +105,24 @@ def EveryN(i, iter=0):
         df['Hour'] = df['Hour'].apply(to_float_hour)
         
         last_row = df.iloc[-1]
+        last_row = last_row.to_frame()
+        last_row = last_row.T
         
         predictions = predictions + 1
         if aux==True:
-            if closest_prediction == last_row['busy_slots']:
+            if closest_prediction == last_row.iloc[0]['busy_slots']:
                 correct_0 = correct_0 + 1
-            elif abs(closest_prediction-last_row['busy_slots']) == 1:
+            elif abs(closest_prediction-last_row.iloc[0]['busy_slots']) == 1:
                 correct_1 = correct_1 + 1
-            elif abs(closest_prediction-last_row['busy_slots']) == 2:
+            elif abs(closest_prediction-last_row.iloc[0]['busy_slots']) == 2:
                 correct_1 = correct_2 + 1
             else:
                 bad = bad + 1
         
                           
-        df = df.append([last_row]*3, ignore_index=True)
+        
+        df = pd.concat([df, last_row, last_row, last_row], ignore_index=True)
+        
         
         
         df.loc[len(df)-3, 'Hour'] = df.loc[len(df)-3, 'Hour'] + 0.30
@@ -153,6 +157,10 @@ def EveryN(i, iter=0):
         forecasting_collection.insert_many(data)
         closest_prediction = data[1]['busy_slots']
         aux = True
+        print('Out of: ',predictions-1,' predictions: ',correct_0, 'predicted perfectly')
+        print('Out of: ',predictions-1,' predictions: ',correct_1, 'predicted with a +- 1 tolerance')
+        print('Out of: ',predictions-1,' predictions: ',correct_2, 'predicted with a +- 2 tolerance')
+        print('Out of: ',predictions-1,' predictions: ',bad, 'predicted wrongly')
          
 
 if __name__ == "__main__":
@@ -166,7 +174,7 @@ if __name__ == "__main__":
     except:
         connection = False
             
-    timer = 180
+    timer = 1800
     alive = True
     aux = False
     predictions = 0
@@ -176,13 +184,7 @@ if __name__ == "__main__":
     bad = 0
     try:
         EveryN(timer)
-        print('Out of: ',predictions,' predictions: ',correct_0, 'predicted perfectly')
-        print('Out of: ',predictions,' predictions: ',correct_1, 'predicted with a +- 1 tolerance')
-        print('Out of: ',predictions,' predictions: ',correct_2, 'predicted with a +- 2 tolerance')
-        print('Out of: ',predictions,' predictions: ',bad, 'predicted wrongly')
-        #print(aux)
         signal.pause()
         
     except KeyboardInterrupt:
         alive = False
-    
