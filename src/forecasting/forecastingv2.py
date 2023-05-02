@@ -37,6 +37,8 @@ def x3(df):
     df['x3'] = df['x3'].astype(int)
     df = df.drop(['hour_int','hourly_avg_bikes'],axis=1)
     return df
+
+
 def EveryN(i, iter=0):
     global connection 
     global counts_collection
@@ -104,11 +106,24 @@ def EveryN(i, iter=0):
         df['Hour'] = df['Hour'].apply(to_float_hour)
         
         last_row = df.iloc[-1]
+        last_row = last_row.to_frame()
+        last_row = last_row.T
         
-
+        predictions = predictions + 1
+        if aux==True:
+            if closest_prediction == last_row.iloc[0]['busy_slots']:
+                correct_0 = correct_0 + 1
+            elif abs(closest_prediction-last_row.iloc[0]['busy_slots']) == 1:
+                correct_1 = correct_1 + 1
+            elif abs(closest_prediction-last_row.iloc[0]['busy_slots']) == 2:
+                correct_1 = correct_2 + 1
+            else:
+                bad = bad + 1
         
                           
-        df = df.append([last_row]*3, ignore_index=True)
+        
+        df = pd.concat([df, last_row, last_row, last_row], ignore_index=True)
+        
         
         
         df.loc[len(df)-3, 'Hour'] = df.loc[len(df)-3, 'Hour'] + 0.30
@@ -141,8 +156,8 @@ def EveryN(i, iter=0):
         prediction_df = prediction_df.drop(['_id','Year','Month','Day','Weekday','Hour','Hour2','x1','x2','x3'],axis=1)
         data = prediction_df.to_dict(orient='records')
         forecasting_collection.insert_many(data)
-        closest_time = data[1]['timestamp']
         closest_prediction = data[1]['busy_slots']
+        closest_time = data[1]['timestamp']
         aux = True
         
         closest_hour = int(closest_time.split('-')[3]) 
@@ -185,11 +200,8 @@ if __name__ == "__main__":
     correct_1 = 0
     correct_2 = 0 
     bad = 0
-    
     try:
         EveryN(timer)
-
-        #print(aux)
         signal.pause()
         
     except KeyboardInterrupt:
