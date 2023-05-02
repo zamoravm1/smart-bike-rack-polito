@@ -1,4 +1,4 @@
-# Last update 25.04.23 14:46 full working IT+EN
+# Last update 15.05.23 1:25 multiple users bug fixed
 
 # By: @zamoravm1 10.04.2023
 #! pip install telebot
@@ -6,7 +6,6 @@
 
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton,ReplyKeyboardRemove,InlineKeyboardMarkup, InlineKeyboardButton
-
 
 
 import json
@@ -44,7 +43,7 @@ class SmartRackChatbot:
         
         self.rack2_keyboard_IT = ReplyKeyboardMarkup(resize_keyboard=True)
         self.rack2_keyboard_IT.row(KeyboardButton('R2'))
-        self.rack2_keyboard_IT.row(KeyboardButton('Aggiornare portabiciclette stato'),KeyboardButton("Selezionare un'altra zona"),KeyboardButton("Assistenza"))
+        self.rack2_keyboard_IT.row(KeyboardButton('Aggiornare posti bici'),KeyboardButton("Selezionare un'altra zona"),KeyboardButton("Assistenza"))
         
         self.racks=[1,1,1]
         self.rack=1
@@ -53,6 +52,8 @@ class SmartRackChatbot:
         
         self.lang = None
         self.counter = 0
+        
+        self.user_language = {}
 
 
     def read_BikeCount(self):
@@ -127,22 +128,22 @@ class SmartRackChatbot:
         message_text="\n"
         self.rack = 1
         print("get_message_text working")
-        message_text += "\U00002705 *Rack #2 (R2):*\n"
+        message_text += "\U00002705 *State rack #2 (R2):*\n"
         message_text += "Real-time free slots (" + now.strftime('%H:%M') + "): " + str(self.read_BikeCount()) + "\n"
 
         forecasting =  self.read_Forecast()
         one_hour_later = now + datetime.timedelta(hours=1)
         two_hour_later = now + datetime.timedelta(hours=2)
         if now.minute < 30:
-            message_text += "Estimated free spaces at " + now.strftime('%H') + ":30 : "+ str(forecasting[0]) + "\n"
-            message_text += "Estimated free spaces at " + one_hour_later.strftime('%H') + ":00: "+ str(forecasting[1]) +  "\n"
-            message_text += "Estimated free spaces at " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
+            message_text += "Estimated free slots at " + now.strftime('%H') + ":30 : "+ str(forecasting[0]) + "\n"
+            message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":00: "+ str(forecasting[1]) +  "\n"
+            message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
             
         else:
-            message_text += "Estimated free spaces at " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
-            message_text += "Estimated free spaces at " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
-            message_text += "Estimated free spaces at " + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
-        message_text += "\n*Rock tip!*\U0001F91F\n If less than 3 free slots, it's better to go for another rack.\n"
+            message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
+            message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
+            message_text += "Estimated free slots at " + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
+        message_text += "\n*Rock tip!*\U0001F91F\n If the there are less than 3 free spots, it's better to go for another rack.\n"
             
         return message_text
     
@@ -153,7 +154,7 @@ class SmartRackChatbot:
         message_text="\n"
         self.rack = 1
         print("get_message_text working IT")
-        message_text += "\U00002705 *Portabiciclette #2 (R2):*\n"
+        message_text += "\U00002705 *Stato del posto bici #2 (R2):*\n"
         message_text += "Posti liberi in tempo reale (" + now.strftime('%H:%M') + "): " + str(self.read_BikeCount()) + "\n"
 
         forecasting =  self.read_Forecast()
@@ -161,15 +162,15 @@ class SmartRackChatbot:
         two_hour_later = now + datetime.timedelta(hours=2)
         print("MIDDLE get_message_text working IT") 
         if now.minute < 30:
-            message_text += "Posti liberi stimati a " + now.strftime('%H') + ":30 : "+ str(forecasting[0]) + "\n"
-            message_text += "Posti liberi stimati a " + one_hour_later.strftime('%H') + ":00: "+ str(forecasting[1]) +  "\n"
-            message_text += "Posti liberi stimati a " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
+            message_text += "Posti liberi stimati alle " + now.strftime('%H') + ":30 : "+ str(forecasting[0]) + "\n"
+            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":00: "+ str(forecasting[1]) +  "\n"
+            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
             
         else:
-            message_text += "Posti liberi stimati a " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
-            message_text += "Posti liberi stimati a " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
-            message_text += "Posti liberi stimati a " + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
-        message_text += "\n*Rock tip!*\U0001F91F\n Se meno di 3 posti liberi, è meglio scegliere un altro portabiciclette.\n"
+            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
+            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
+            message_text += "Posti liberi stimati alle " + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
+        message_text += "\n*Rock tip!*\U0001F91F\n Se ci sono meno di tre posti, è meglio scegliere un altro posto bici.\n"
         print("FINISH get_message_text working IT")  
         return message_text
     
@@ -215,15 +216,20 @@ class SmartRackChatbot:
         @self.bot.message_handler(func=lambda message: message.text in ["Italiano", "English"]  or (message.text == "Select another zone" or message.text == "Selezionare un'altra zona"))
         def process_language_selection(message):
             if self.counter == 0:
-                self.lang = message.text
-                self.counter += 1
+                    self.lang = message.text
+                    chat_id = message.chat.id
+                    self.user_language[chat_id]= self.lang
+                    language = self.user_language.get(chat_id)
+                    print(language)
+                    self.counter += 1
+                
             if message.text == "Italiano" or message.text == "Selezionare un'altra zona":
                 zone_buttons=self.zone_selection(message.text)
                 # Send the picture of the zones
                 with open('zones_byname.jpg', 'rb') as photo:
                     self.bot.send_photo(message.chat.id, photo)
                     
-                self.bot.reply_to(message,"\U0001F7E2 *Selezionare o scrivere la zona ( marchi verdi nell'immagine sopra):*\n", reply_markup=zone_buttons,parse_mode='Markdown')
+                self.bot.reply_to(message,"*Dove vuoi andare?*\n\n\U0001F7E2 *Selezionare o scrivere la zona (punti verdi nell'immagine sopra):*\n", reply_markup=zone_buttons,parse_mode='Markdown')
                 self.bot.reply_to(message,'_Per il momento, disponibile solo "Aula M-N"_', reply_markup=zone_buttons,parse_mode='Markdown')
             elif message.text == "English"  or message.text == "Select another zone":
                 zone_buttons=self.zone_selection(message.text)
@@ -231,34 +237,38 @@ class SmartRackChatbot:
                 with open('zones_byname.jpg', 'rb') as photo:
                     self.bot.send_photo(message.chat.id, photo)
                 #self.bot.reply_to(message, "Zones with racks are marked by *green tags* in the picture above. \nFor now,  available only the 'Aula M-N' zone.\n*Select or write the zone you need to go:*", reply_markup=zone_buttons)
-                self.bot.reply_to(message,'\U0001F7E2 *Select or write the zone (green marks in the picture above):*\n', reply_markup=zone_buttons,parse_mode='Markdown')
+                self.bot.reply_to(message,'*Where do you want to go?*\n\n\U0001F7E2 *Select or write the zone (green marks in the picture above):*\n', reply_markup=zone_buttons,parse_mode='Markdown')
                 self.bot.reply_to(message,'_For now, available only "Aula M-N"_', reply_markup=zone_buttons,parse_mode='Markdown')
             else:
                 self.bot.reply_to(message, "Invalid zone selection or not available.")
                 print("FAIL process_language_selection")    
             
         # Handle zone selection
-        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text in ["Update racks state","Aggiornare portabiciclette stato"])
+        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text in ["Update racks state","Aggiornare posti bici"])
         def process_zone_selection(message):
             # Get the selected zone
             #selected_zone = next((zone for zone in self.locations['features'] if zone['properties']['name'] == message.text), None)
+            chat_id = message.chat.id
+            self.lang = self.user_language.get(chat_id)
             if self.lang== "Italiano":
-                if message.text == "Aula M-N" or message.text =="Aggiornare portabiciclette stato":
+                if message.text == "Aula M-N" or message.text =="Aggiornare posti bici":
                     print(" process_zone_selection IT running: " + message.text)
                     # Send the picture of the racks in the zone
                     with open('racks.png', 'rb') as photo:
                         self.bot.send_photo(message.chat.id, photo)
 
-                    message_text = "*Selezionare o scrivere una portabiciclette per ottenere la localizzazione sulla mappa:*\n"  # Add two newlines to create a gap between the title and the list
-
                     racks = [1,1,1]
                     self.racks = racks
+                    message_text = ""
                     message_text += self.get_message_text_IT()
-
+                    self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard_IT,parse_mode='Markdown')
+                    
+                    message_text = "*Selezionare o scrivere un posto bici per ottenere la localizzazione sulla mappa* (_numero dei posti bici nell'immagine sopra_):\n"  # Add two newlines to create a gap between the title and the list
+                    message_text += "_Per il momento, disponibile solo 'Posto bici #2' (R2)_"
                     # Send the message with the markup
                     #self.bot.send_message(message.chat.id, message_text, reply_markup=markup,parse_mode='Markdown')
-                    self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard_IT,parse_mode='Markdown')
-                    self.bot.send_message(message.chat.id, "_Per il momento, disponibile solo 'Portabiciclette #2' (R2)_", reply_markup=self.rack2_keyboard_IT,parse_mode='Markdown')
+                    
+                    self.bot.send_message(message.chat.id,message_text, reply_markup=self.rack2_keyboard_IT,parse_mode='Markdown')
                 else:
                     self.bot.reply_to(message, "Selezione non valida o non disponibile.")
                     print("FAIL IT process_zone_selection")    
@@ -270,19 +280,21 @@ class SmartRackChatbot:
                     with open('racks.png', 'rb') as photo:
                         self.bot.send_photo(message.chat.id, photo)
 
-                    message_text = "*Select or write a rack to get the map localization:*\n"  # Add two newlines to create a gap between the title and the list
-
+                    message_text = ""
                     racks = [1,1,1]
                     self.racks = racks
                     message_text += self.get_message_text()
-                    #button = InlineKeyboardButton("Update this info", callback_data="button_callback")
-                    # Create the markup with the button
+                    #button = InlineKeyboardButton("Update this inllback")
+                    # Create the markup with the buttonfo", callback_data="button_ca
                     #markup = InlineKeyboardMarkup().add(button)
-
+                    
+                    
                     # Send the message with the markup
                     #self.bot.send_message(message.chat.id, message_text, reply_markup=markup,parse_mode='Markdown')
                     self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
-                    self.bot.send_message(message.chat.id, "_For now, only the 'Rack #2' available_", reply_markup=self.rack2_keyboard,parse_mode='Markdown')
+                    message_text= "*Select or write a rack to get the map localization* (_racks id in the picture above_):\n"  # Add two newlines to create a gap between the title and the list
+                    message_text+= "_For now, only the 'Rack #2' available_"
+                    self.bot.send_message(message.chat.id,message_text, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
                 else:
                     self.bot.reply_to(message, "Invalid zone selection or not available.")
                     print("FAIL EN send localization") 
@@ -296,7 +308,8 @@ class SmartRackChatbot:
         def button_handler(message):
             # Find the location corresponding to the button text
             location_name = message.text
-
+            chat_id = message.chat.id
+            self.lang = self.user_language.get(chat_id)
             if self.lang== "Italiano": 
                 if location_name == 'R2':
                     rack = re.findall(r'\d',message.text)
@@ -304,7 +317,7 @@ class SmartRackChatbot:
                     latitude = 7.6567050250754525
                     longitude  = 45.06480112528298
                     # Otherwise, send the location information
-                    message_text= "*\U0001F6B4 Andiamo per quella rastrelliera, clicca sulla mappa per le indicazioni!*"
+                    message_text= "*\U0001F6B4 Andiamo, clicca sulla mappa per le indicazioni!*"
                     message_text2 ="Lasciaci il tuo feedback, solo 2 min \U0001F91E https://forms.gle/hhsFYitpM13TW9Lz7"
 
                     self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard_IT,parse_mode='Markdown')
@@ -321,7 +334,7 @@ class SmartRackChatbot:
                     latitude = 7.6567050250754525
                     longitude  = 45.06480112528298
                     # Otherwise, send the location information
-                    message_text= "*\U0001F6B4 Let's go for that rack, click on the map for directions!*"
+                    message_text= "*\U0001F6B4 Let's go, click on the map for directions!*"
                     message_text2 ="Leave us your feedback, only 2 min \U0001F91E https://forms.gle/5yW2r5iYNw5VA2cb8"
                     self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
                     self.bot.send_location(message.chat.id, longitude, latitude, reply_markup=self.rack2_keyboard)
@@ -338,12 +351,13 @@ class SmartRackChatbot:
          # Handle help selection
         @self.bot.message_handler(func=lambda message: message.text in ["Help","Assistenza"])
         def help(message):
+            
             if message.text == "Assistenza":
                 message_text = "\U0001F469 *Cos'è il chatbot Smart rack Polito?* È un servizio pilota che ti permette di trovare e ottenere la localizzazione di un posto libero per la tua bici nel campus Polito in tempo reale o per una stima delle prossime 2h.\n"
                 message_text += "\U0001F9D1 *Come funziona?* Seleziona l'area in cui vuoi andare, scopri lo stato dei rack nell'area e seleziona quello più adatto a te per ottenere la posizione sulla mappa.\n"
                 message_text += "\U00002139 *Al momento è DISPONIBILE SOLO la zona 'M e N' con il portabici 'R2'.*\n"
                 message_text += "\U0001F4EC In caso di domande o suggerimenti, inviare un'e-mail a smarttrack2022@gmail.com \n"
-                message_text += "\U000021AA Scrivi /start per *cambiare lingua* o *torna alla chat*"
+                message_text += "\U000021AA Scrivi o seleziona \U0001F449 /start per *cambiare lingua* o *torna alla chat*"
 
                 # Send the message using the reply_to method of the bot object
                 reply_markup = ReplyKeyboardRemove()
@@ -353,7 +367,7 @@ class SmartRackChatbot:
                 message_text += "\U0001F9D1 *How does it work?* Select the area you want to go to, find out about the status of the racks in the area, and select the one that suits you best to get the location on the map.\n"
                 message_text += "\U00002139 *At the moment, ONLY the zone 'M and N' with the bike rack 'R2' is AVAILABLE.*\n"
                 message_text += "\U0001F4EC If you have any questions or suggestions, please email us at smartrack2022@gmail.com \n"
-                message_text += "\U000021AA Write /start to *change language* or *comeback to chat*"
+                message_text += "\U000021AA Write or select o \U0001F449 /start to *change language* or *comeback to chat*"
                 
                 # Send the message using the reply_to method of the bot object
                 reply_markup = ReplyKeyboardRemove()
@@ -370,5 +384,9 @@ class SmartRackChatbot:
         self.bot.infinity_polling()
         
 if __name__ == '__main__':
+    # original
     bot = SmartRackChatbot("5856399288:AAEUv-kY9oJ1PxLGThO0wviLfp30LNUdblI")
+    
+    # back to test
+    #bot = SmartRackChatbot("5522809102:AAFIkT3BkguN1W2A2pe1maV5mwDPido4Eg0")
     bot.start()
