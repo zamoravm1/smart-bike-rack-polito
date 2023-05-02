@@ -161,24 +161,25 @@ def EveryN(i, iter=0):
         aux = True
         
         closest_hour = int(closest_time.split('-')[3]) 
+        
         if 7 <= closest_hour <= 21:
             predictions = predictions + 1
             if aux==True:
-                if closest_prediction == last_row['busy_slots']:
+                if closest_prediction == last_row['busy_slots'].values:
                     correct_0 = correct_0 + 1
-                elif abs(closest_prediction-last_row['busy_slots']) == 1:
+                elif abs(closest_prediction-last_row['busy_slots'].values) == 1:
                     correct_1 = correct_1 + 1
-                elif abs(closest_prediction-last_row['busy_slots']) == 2:
+                elif abs(closest_prediction-last_row['busy_slots'].values) == 2:
                     correct_1 = correct_2 + 1
                 else:
                     bad = bad + 1
         else:
             pass
         
-        print('Out of: ',predictions,' predictions: ',correct_0, 'predicted perfectly')
-        print('Out of: ',predictions,' predictions: ',correct_1, 'predicted with a +- 1 tolerance')
-        print('Out of: ',predictions,' predictions: ',correct_2, 'predicted with a +- 2 tolerance')
-        print('Out of: ',predictions,' predictions: ',bad, 'predicted wrongly')
+        print('Out of: ',predictions-1,' predictions: ',correct_0, 'predicted perfectly')
+        print('Out of: ',predictions-1,' predictions: ',correct_1, 'predicted with a +- 1 tolerance')
+        print('Out of: ',predictions-1,' predictions: ',correct_2, 'predicted with a +- 2 tolerance')
+        print('Out of: ',predictions-1,' predictions: ',bad, 'predicted wrongly')
          
 
 if __name__ == "__main__":
