@@ -1,9 +1,7 @@
-# Last update 15.05.23 1:25 multiple users bug fixed
 
 # By: @zamoravm1 10.04.2023
 #! pip install telebot
 #! pip install pymongo
-
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton,ReplyKeyboardRemove,InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -43,7 +41,7 @@ class SmartRackChatbot:
         
         self.rack2_keyboard_IT = ReplyKeyboardMarkup(resize_keyboard=True)
         self.rack2_keyboard_IT.row(KeyboardButton('R2'))
-        self.rack2_keyboard_IT.row(KeyboardButton('Aggiornare posti bici'),KeyboardButton("Selezionare un'altra zona"),KeyboardButton("Assistenza"))
+        self.rack2_keyboard_IT.row(KeyboardButton('Aggiornare rastrelliere'),KeyboardButton("Selezionare un'altra zona"),KeyboardButton("Assistenza"))
         
         self.racks=[1,1,1]
         self.rack=1
@@ -143,7 +141,7 @@ class SmartRackChatbot:
             message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
             message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
             message_text += "Estimated free slots at " + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
-        message_text += "\n*Rock tip!*\U0001F91F\n If the there are less than 3 free spots, it's better to go for another rack.\n"
+        message_text += "\n*Rock tip!*\U0001F91F\n If the there are less than 3 free spots, it's better to go for another rack.\n"
             
         return message_text
     
@@ -209,7 +207,7 @@ class SmartRackChatbot:
             # start counter in 0
             self.counter = 0
             # Send a message asking for language selection
-            self.bot.reply_to(message, "*Here we go! \U0001F60E\nPick your preferred language:*", reply_markup=self.language_keyboard,parse_mode='Markdown')
+            self.bot.reply_to(message, "*Here we go! \U0001F60E\nFrom the buttons. Pick your preferred language:*", reply_markup=self.language_keyboard,parse_mode='Markdown')
             
 
         # Handle language selection
@@ -229,7 +227,7 @@ class SmartRackChatbot:
                 with open('zones_byname.jpg', 'rb') as photo:
                     self.bot.send_photo(message.chat.id, photo)
                     
-                self.bot.reply_to(message,"*Dove vuoi andare?*\n\n\U0001F7E2 *Selezionare o scrivere la zona (punti verdi nell'immagine sopra):*\n", reply_markup=zone_buttons,parse_mode='Markdown')
+                self.bot.reply_to(message,"*Dove vuoi andare?*\n\n\U0001F7E2 *Dai pulsanti. Selezionare la zona (punti verdi nell'immagine sopra):*\n", reply_markup=zone_buttons,parse_mode='Markdown')
                 self.bot.reply_to(message,'_Per il momento, disponibile solo "Aula M-N"_', reply_markup=zone_buttons,parse_mode='Markdown')
             elif message.text == "English"  or message.text == "Select another zone":
                 zone_buttons=self.zone_selection(message.text)
@@ -237,21 +235,21 @@ class SmartRackChatbot:
                 with open('zones_byname.jpg', 'rb') as photo:
                     self.bot.send_photo(message.chat.id, photo)
                 #self.bot.reply_to(message, "Zones with racks are marked by *green tags* in the picture above. \nFor now,  available only the 'Aula M-N' zone.\n*Select or write the zone you need to go:*", reply_markup=zone_buttons)
-                self.bot.reply_to(message,'*Where do you want to go?*\n\n\U0001F7E2 *Select or write the zone (green marks in the picture above):*\n', reply_markup=zone_buttons,parse_mode='Markdown')
+                self.bot.reply_to(message,'*Where do you want to go?*\n\n\U0001F7E2 *From the buttons. Select the zone (green marks in the picture above):*\n', reply_markup=zone_buttons,parse_mode='Markdown')
                 self.bot.reply_to(message,'_For now, available only "Aula M-N"_', reply_markup=zone_buttons,parse_mode='Markdown')
             else:
-                self.bot.reply_to(message, "Invalid zone selection or not available.")
+                self.bot.reply_to(message, "Invalid selection or not available. Please, close your keyboard to *use only the buttons* and read again instructions above.",parse_mode='Markdown')
                 print("FAIL process_language_selection")    
             
         # Handle zone selection
-        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text in ["Update racks state","Aggiornare posti bici"])
+        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text in ["Update racks state","Aggiornare rastrelliere"])
         def process_zone_selection(message):
             # Get the selected zone
             #selected_zone = next((zone for zone in self.locations['features'] if zone['properties']['name'] == message.text), None)
             chat_id = message.chat.id
             self.lang = self.user_language.get(chat_id)
             if self.lang== "Italiano":
-                if message.text == "Aula M-N" or message.text =="Aggiornare posti bici":
+                if message.text == "Aula M-N" or message.text =="Aggiornare rastrelliera":
                     print(" process_zone_selection IT running: " + message.text)
                     # Send the picture of the racks in the zone
                     with open('racks.png', 'rb') as photo:
@@ -263,8 +261,8 @@ class SmartRackChatbot:
                     message_text += self.get_message_text_IT()
                     self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard_IT,parse_mode='Markdown')
                     
-                    message_text = "*Selezionare o scrivere un posto bici per ottenere la localizzazione sulla mappa* (_numero dei posti bici nell'immagine sopra_):\n"  # Add two newlines to create a gap between the title and the list
-                    message_text += "_Per il momento, disponibile solo 'Posto bici #2' (R2)_"
+                    message_text = "*Dai pulsanti. Selezionare una rastrelliera per ottenere la localizzazione sulla mappa* (_numero dei posti bici nell'immagine sopra_):\n"  # Add two newlines to create a gap between the title and the list
+                    message_text += "_Per il momento, disponibile solo 'Rastrelliera #2' (R2)_"
                     # Send the message with the markup
                     #self.bot.send_message(message.chat.id, message_text, reply_markup=markup,parse_mode='Markdown')
                     
@@ -292,11 +290,11 @@ class SmartRackChatbot:
                     # Send the message with the markup
                     #self.bot.send_message(message.chat.id, message_text, reply_markup=markup,parse_mode='Markdown')
                     self.bot.send_message(message.chat.id, message_text, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
-                    message_text= "*Select or write a rack to get the map localization* (_racks id in the picture above_):\n"  # Add two newlines to create a gap between the title and the list
+                    message_text= "*Select a rack to get the map localization* (_racks id in the picture above_):\n"  # Add two newlines to create a gap between the title and the list
                     message_text+= "_For now, only the 'Rack #2' available_"
                     self.bot.send_message(message.chat.id,message_text, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
                 else:
-                    self.bot.reply_to(message, "Invalid zone selection or not available.")
+                    self.bot.reply_to(message, 'Invalid selection or not available. Please, close your keyboard to *use only the buttons* and read again instructions above.',parse_mode='Markdown')
                     print("FAIL EN send localization") 
             else: 
                 self.bot.reply_to(message, "Error")
@@ -340,7 +338,7 @@ class SmartRackChatbot:
                     self.bot.send_location(message.chat.id, longitude, latitude, reply_markup=self.rack2_keyboard)
                     self.bot.send_message(message.chat.id, message_text2, reply_markup=self.rack2_keyboard,parse_mode='Markdown')
                 else:
-                    self.bot.send_message(message.chat.id, "Invalid selection or not available.")
+                    self.bot.send_message(message.chat.id,"Invalid selection or not available. Please, close your keyboard to *use only the buttons* and read again instructions above.",parse_mode='Markdown')
                     print("FAIL EN send localization") 
             else:
                 # If the location wasn't found, send an error message
@@ -378,7 +376,7 @@ class SmartRackChatbot:
                 if self.lang=="Italiano":
                     self.bot.reply_to(message, "Selezione della zona non valida o non disponibile.",reply_markup=reply_markup)
                 elif self.lang=="English":
-                    self.bot.reply_to(message, "Invalid selection or not available.",reply_markup=reply_markup)
+                    self.bot.reply_to(message, "Invalid selection or not available. Please, close your keyboard to *use only the buttons* and read again instructions above.",parse_mode='Markdown')
                 
         # Start the bot
         self.bot.infinity_polling()
@@ -387,6 +385,7 @@ if __name__ == '__main__':
     # original
     bot = SmartRackChatbot("5856399288:AAEUv-kY9oJ1PxLGThO0wviLfp30LNUdblI")
     
+
     # back to test
     #bot = SmartRackChatbot("5522809102:AAFIkT3BkguN1W2A2pe1maV5mwDPido4Eg0")
     bot.start()
