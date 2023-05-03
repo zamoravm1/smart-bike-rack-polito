@@ -1,7 +1,6 @@
-
 # By: @zamoravm1 10.04.2023
-#! pip install telebot
-#! pip install pymongo
+! pip install telebot
+! pip install pymongo
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton,ReplyKeyboardRemove,InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -133,9 +132,9 @@ class SmartRackChatbot:
         one_hour_later = now + datetime.timedelta(hours=1)
         two_hour_later = now + datetime.timedelta(hours=2)
         if now.minute < 30:
-            message_text += "Estimated free slots at " + now.strftime('%H') + ":30 : "+ str(forecasting[0]) + "\n"
-            message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":00: "+ str(forecasting[1]) +  "\n"
-            message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
+            message_text += "Estimated free slots at (" + now.strftime('%H') + ":30): "+ str(forecasting[0]) + "\n"
+            message_text += "Estimated free slots at (" + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[1]) +  "\n"
+            message_text += "Estimated free slots at (" + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
             
         else:
             message_text += "Estimated free slots at " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
@@ -152,7 +151,7 @@ class SmartRackChatbot:
         message_text="\n"
         self.rack = 1
         print("get_message_text working IT")
-        message_text += "\U00002705 *Stato del posto bici #2 (R2):*\n"
+        message_text += "\U00002705 *Stato della rastrelliera #2 (R2):*\n"
         message_text += "Posti liberi in tempo reale (" + now.strftime('%H:%M') + "): " + str(self.read_BikeCount()) + "\n"
 
         forecasting =  self.read_Forecast()
@@ -160,14 +159,14 @@ class SmartRackChatbot:
         two_hour_later = now + datetime.timedelta(hours=2)
         print("MIDDLE get_message_text working IT") 
         if now.minute < 30:
-            message_text += "Posti liberi stimati alle " + now.strftime('%H') + ":30 : "+ str(forecasting[0]) + "\n"
-            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":00: "+ str(forecasting[1]) +  "\n"
-            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
+            message_text += "Posti liberi stimati alle (" + now.strftime('%H') + ":30) : "+ str(forecasting[0]) + "\n"
+            message_text += "Posti liberi stimati alle (" + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[1]) +  "\n"
+            message_text += "Posti liberi stimati alle (" + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +  "\n"
             
         else:
-            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
-            message_text += "Posti liberi stimati alle " + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
-            message_text += "Posti liberi stimati alle " + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
+            message_text += "Posti liberi stimati alle (" + one_hour_later.strftime('%H') + ":00): "+ str(forecasting[0]) +"\n"
+            message_text += "Posti liberi stimati alle (" + one_hour_later.strftime('%H') + ":30): "+ str(forecasting[1]) +"\n"
+            message_text += "Posti liberi stimati alle (" + two_hour_later.strftime('%H') + ":30): "+ str(forecasting[2]) +"\n"
         message_text += "\n*Rock tip!*\U0001F91F\n Se ci sono meno di tre posti, è meglio scegliere un altro posto bici.\n"
         print("FINISH get_message_text working IT")  
         return message_text
@@ -383,9 +382,9 @@ class SmartRackChatbot:
         
 if __name__ == '__main__':
     # original
-    bot = SmartRackChatbot("5856399288:AAEUv-kY9oJ1PxLGThO0wviLfp30LNUdblI")
+    #bot = SmartRackChatbot("5856399288:AAEUv-kY9oJ1PxLGThO0wviLfp30LNUdblI")
     
 
     # back to test
-    #bot = SmartRackChatbot("5522809102:AAFIkT3BkguN1W2A2pe1maV5mwDPido4Eg0")
+    bot = SmartRackChatbot("5522809102:AAFIkT3BkguN1W2A2pe1maV5mwDPido4Eg0")
     bot.start()
