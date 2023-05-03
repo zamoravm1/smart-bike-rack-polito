@@ -41,7 +41,7 @@ class SmartRackChatbot:
         
         self.rack2_keyboard_IT = ReplyKeyboardMarkup(resize_keyboard=True)
         self.rack2_keyboard_IT.row(KeyboardButton('R2'))
-        self.rack2_keyboard_IT.row(KeyboardButton('Aggiornare rastrelliere'),KeyboardButton("Selezionare un'altra zona"),KeyboardButton("Assistenza"))
+        self.rack2_keyboard_IT.row(KeyboardButton('Aggiornare rastrelliera'),KeyboardButton("Selezionare un'altra zona"),KeyboardButton("Assistenza"))
         
         self.racks=[1,1,1]
         self.rack=1
@@ -242,7 +242,7 @@ class SmartRackChatbot:
                 print("FAIL process_language_selection")    
             
         # Handle zone selection
-        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text in ["Update racks state","Aggiornare rastrelliere"])
+        @self.bot.message_handler(func=lambda message: message.text in self.labels or message.text in ["Update racks state","Aggiornare rastrelliera"])
         def process_zone_selection(message):
             # Get the selected zone
             #selected_zone = next((zone for zone in self.locations['features'] if zone['properties']['name'] == message.text), None)
