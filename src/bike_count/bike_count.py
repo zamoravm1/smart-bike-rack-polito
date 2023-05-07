@@ -21,7 +21,7 @@ def EveryN(i, iter = 0):
     
     if not connection:
         try:
-            myclient = pymongo.MongoClient("mongodb+srv://smartrack2022:Smart*rack2022@smartbikerack.ocijvrf.mongodb.net/test")
+            myclient = pymongo.MongoClient("mongodb+srv://smartrack2022:*************************")
             mydb = myclient["Smart_Bike_Rack"]
             bike_count = mydb["Bike_Count"]
             pictures = mydb["Pictures"]
