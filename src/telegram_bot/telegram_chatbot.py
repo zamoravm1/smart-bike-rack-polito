@@ -22,7 +22,7 @@ class SmartRackChatbot:
         self.locations = []
         self.language_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
         self.language_keyboard.row(KeyboardButton('Italiano'), KeyboardButton('English'))
-        self.client = MongoClient("mongodb+srv://smartrack2022:Smart*rack2022@smartbikerack.ocijvrf.mongodb.net/test")
+        self.client = MongoClient("mongodb+srv://smartrack2022:*********@smartbikerack.ocijvrf.mongodb.net/test")
         self.db = self.client["Smart_Bike_Rack"]
         
         
@@ -382,9 +382,9 @@ class SmartRackChatbot:
         
 if __name__ == '__main__':
     # original
-    #bot = SmartRackChatbot("5856399288:AAEUv-kY9oJ1PxLGThO0wviLfp30LNUdblI")
+    #bot = SmartRackChatbot("5856399288:**********************************")
     
 
     # back to test
-    bot = SmartRackChatbot("5522809102:AAFIkT3BkguN1W2A2pe1maV5mwDPido4Eg0")
+    bot = SmartRackChatbot("5522809102:**********************************")
     bot.start()
