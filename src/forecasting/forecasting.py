@@ -58,7 +58,7 @@ def EveryN(i, iter=0):
     
     if not connection:
         try: 
-            myclient = pymongo.MongoClient('mongodb+srv://smartrack2022:Smart*rack2022@smartbikerack.ocijvrf.mongodb.net/test')
+            myclient = pymongo.MongoClient('mongodb+srv://smartrack2022:*************************')
             db = myclient['Smart_Bike_Rack']
             counts_collection = db['Bike_Count']
             forecasting_collection = db['Forecasting']
@@ -165,7 +165,7 @@ def EveryN(i, iter=0):
 
 if __name__ == "__main__":
     try: 
-        myclient = pymongo.MongoClient('mongodb+srv://smartrack2022:Smart*rack2022@smartbikerack.ocijvrf.mongodb.net/test')
+        myclient = pymongo.MongoClient('mongodb+srv://smartrack2022:*************************')
         db = myclient['Smart_Bike_Rack']
         counts_collection = db['Bike_Count']
         forecasting_collection = db['Forecasting']
