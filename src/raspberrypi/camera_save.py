@@ -7,7 +7,7 @@ import os
 
 # Connect to MongoDB database
 try:
-    myclient = pymongo.MongoClient("mongodb+srv://smartrack2022:Smart*rack2022@smartbikerack.ocijvrf.mongodb.net/test")
+    myclient = pymongo.MongoClient("mongodb+srv://smartrack2022:*************************")
     mydb = myclient["Smart_Bike_Rack"]
     mycol = mydb["Pictures"]
     connection = True
@@ -42,7 +42,7 @@ def EveryN(i, iter):
     if (now.hour >= 7 and now.hour <= 19) and (now.weekday() != 5 and now.weekday() != 6):
         if not connection:
             try:
-                myclient = pymongo.MongoClient("mongodb+srv://smartrack2022:Smart*rack2022@smartbikerack.ocijvrf.mongodb.net/test")
+                myclient = pymongo.MongoClient("mongodb+srv://smartrack2022:*************************")
                 mydb = myclient["Smart_Bike_Rack"]
                 mycol = mydb["Pictures"]
                 connection = True
