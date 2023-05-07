@@ -7,3 +7,5 @@ The system provides real-time updates on the status of one of the university’s
 Team: Ayala Gil, Alejandro; Mendoza Zamora, Valentina; Montoya Rodríguez, Brayan; Shao, Wenxin.
 
 Key word：Computer vision, Smart Bike Rack, Raspberry Pi, YOLO, Fast R-CNN, ARIMA, Random Forest, Telegram chatbot.
+
+Full documentation and report: https://plum-tote-ee4.notion.site/Smart-Bike-Rack-Polito-675c49a4151c4cdd970232132840eb48
